@@ -1,4 +1,4 @@
-import pandas as pd
+import pandas as pd 
 import numpy as np
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -235,26 +235,30 @@ def main():
     st.header("Мониторинг текущей температуры через OpenWeatherMap")
 
     api_key = st.text_input("OpenWeatherMap API key", type="password")
+    btn = st.button("Получить текущую температуру")
 
-    if api_key and st.button("Получить текущую температуру"):
-        temp, error = get_current_temperature(city, api_key)
-
-        if error is not None:
-            st.error("Ошибка OpenWeatherMap")
-            st.json(error)
+    if btn:
+        if not api_key:
+            st.error("Нужен API key.")
         else:
-            st.success(f"Текущая температура в {city}: {temp:.1f} °C")
+            temp, error = get_current_temperature(city, api_key)
 
-            season_now = month_to_season[datetime.utcnow().month]
-            low, high, mean, std = seasonal_norm(df_city, season_now)
-
-            st.write(f"Сезон сейчас: **{season_now}**")
-            st.write(f"Нормальный диапазон по истории: **[{low:.1f}, {high:.1f}] °C**")
-
-            if temp < low or temp > high:
-                st.error("Температура выходит за нормальный диапазон сезона.")
+            if error is not None:
+                st.error("Ошибка OpenWeatherMap")
+                st.json(error)
             else:
-                st.info("Температура в пределах нормального диапазона сезона.")
+                st.success(f"Текущая температура в {city}: {temp:.1f} °C")
+
+                season_now = month_to_season[datetime.utcnow().month]
+                low, high, mean, std = seasonal_norm(df_city, season_now)
+
+                st.write(f"Сезон сейчас: **{season_now}**")
+                st.write(f"Нормальный диапазон по истории: **[{low:.1f}, {high:.1f}] °C**")
+
+                if temp < low or temp > high:
+                    st.error("Температура выходит за нормальный диапазон сезона.")
+                else:
+                    st.info("Температура в пределах нормального диапазона сезона.")
 
 
 if __name__ == "__main__":
